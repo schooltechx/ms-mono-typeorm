@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+      "paths": {
+      "@ms-mono-share/database-entities": ["../../packages/database-entities/src"]
+    }
+  },
+  "references": [{ "path": "../../packages/database-entities" }]
+}

@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/database-entities" }, 
+    { "path": "services/migration-service" }, 
+    { "path": "services/order-service" }, 
+    { "path": "services/product-service" }]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "ms-mono-typeorm",
+  "version": "1.0.0",
+  "description": "The example project shows how to do migration in Microservice, use Mono Repo and TypeORM.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-schooltechx:schooltechx/ms-mono-typeorm.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "workspaces": [
+    "packages/database-entities",
+    "services/migration-service",
+    "services/order-service",
+    "services/product-service"
+  ]
+}
