@@ -3,9 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-      "paths": {
-      "@ms-mono-share/database-entities": ["../../packages/database-entities/src"]
+    "paths": {
+      "@ms-mono-share/database-entities": ["../../packages/database-entities/src"],
+      "@ms-mono-share/database": ["../../packages/database/src"]
     }
   },
-  "references": [{ "path": "../../packages/database-entities" }]
+  "references": [{ "path": "../../packages/database-entities" }, { "path": "../../packages/database" }]
 }

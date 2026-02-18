@@ -19,6 +19,7 @@
     "packages/database-entities",
     "services/migration-service",
     "services/order-service",
-    "services/product-service"
+    "services/product-service",
+    "packages/database"
   ]
 }

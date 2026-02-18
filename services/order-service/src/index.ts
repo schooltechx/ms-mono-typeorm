@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import express from "express";
-import { AppDataSource } from "./data-source";
+import { AppDataSource } from "@ms-mono-share/database";
 import { Order } from "@ms-mono-share/database-entities";
 
 const app = express();

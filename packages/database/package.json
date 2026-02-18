@@ -1,0 +1,23 @@
+{
+  "name": "@ms-mono-share/database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@ms-mono-share/database-entities": "^1.0.0",
+    "dotenv": "^16.6.1",
+    "sqlite3": "^5.1.7",
+    "typeorm": "^0.3.28"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

@@ -56,7 +56,8 @@ database-entities ให้ scope เป็น @ms-mono-share
 ```sh
 cd <mono-repo-folder>
 npm init -y
-npm init -y --scope @ms-mono-share -w packages/database-entities 
+npm init -y --scope @ms-mono-share -w packages/database-entities
+npm init -y --scope @ms-mono-share -w packages/database
 npm init -y -w services/migration-service
 npm init -y -w services/order-service
 npm init -y -w services/product-service
@@ -68,18 +69,22 @@ npm i @ms-mono-share/database-entities -w services/order-service
 ## Install Dependencies
 database-entities จะติดถูกตั้งบนทุก service 
 ```sh
+npm i @ms-mono-share/database-entities -w @ms-mono-share/database
 npm i @ms-mono-share/database-entities -w services/migration-service
 npm i @ms-mono-share/database-entities -w services/product-service
 npm i @ms-mono-share/database-entities -w services/order-service
+
 ```
 ติดตั้ง Dependencies ที่แต่ละตัวใช้
 ```sh
 ## database-entities
 npm i typeorm -w @ms-mono-share/database-entities
 npm i -D typescript -w @ms-mono-share/database-entities
-
+## database
+npm i typeorm sqlite3 dotenv -w @ms-mono-share/database
+npm i -D typescript -w @ms-mono-share/database
 ## all services
-npm i dotenv typeorm express sqlite3 -w services/migration-service \
+npm i dotenv typeorm express -w services/migration-service \
   -w services/product-service -w services/order-service
 npm i -D typescript @types/express -w services/migration-service \
   -w services/product-service -w services/order-service
@@ -100,11 +105,13 @@ npm i ts-node-dev -w services/migration-service
 ```sh
 ## Build
 npm run build -w @ms-mono-share/database-entities
+npm run build -w @ms-mono-share/database
 npm run build -w services/migration-service
 npm run build -w services/product-service 
 npm run build -w services/order-service
 ## Clean
 npm run clean -w @ms-mono-share/database-entities
+npm run clean -w @ms-mono-share/database
 npm run clean -w services/migration-service
 npm run clean -w services/product-service 
 npm run clean -w services/order-service
@@ -114,6 +121,8 @@ npm run clean -w services/order-service
 npm run build --workspaces --if-present
 npm run clean --workspaces --if-present
 ```
+*แต่ npm ไม่สามารถจัดการ build sequence หรือ build dependency ได้ 
+ควร build ใน packages ก่อนใน services ถึงจะหาเจอ*
 
 ## Migration
 จะทำ migrate จากศูนย์กลางโดยใช้ services/migration-service 
@@ -126,13 +135,20 @@ npx typeorm migration:generate services/migration-service/src/migrations/Init \
 npm run migrate -w services/migration-service
 ```
 ## Start Services
-เรียกใช้งานทดสองด้วย [test.http](test.http)(Rest Client) เนื่องจากไม่มีข้อมูลจะส่ง Empty Array กลับมา
+เรียกใช้งาน 
 ```sh
 npm start -w services/migration-service
 npm start -w services/product-service
 npm start -w services/order-service
 ```
+ทดสอบด้วย [test.http](test.http)(Rest Client) หรือ curl เนื่องจากไม่มีข้อมูลจะส่ง Empty Array กลับมา
+```sh
+curl -i http://localhost:3002/products 
+curl -i http://localhost:3003/orders
+```
+
 ## Homework
 - ลองสร้างอีก workspace ชื่อ services/user-service ใช้ port 3001 
 มี Entities [User.ts](packages/database-entities/src/User.ts) เตรียมไว้แล้ว
+อาจจะใช้ Framework ที่ต่างออกไปก็ได้เช่น Elysia.js, TSOA
 - เพิ่มข้อมูล แล้วสร้าง API CRUD ให้สมบูรณ์

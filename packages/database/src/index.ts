@@ -8,5 +8,3 @@ export const AppDataSource = new DataSource({
   logging: true,
   entities: [User, Product, Order],
 });
-
-
