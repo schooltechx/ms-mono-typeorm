@@ -1,21 +1,25 @@
 # ms-mono-typeorm
-The example project shows how to do migration in Microservice, use Mono Repo and TypeORM. 
+The example project shows how to do centralized migration in Microservice, use Mono Repo and TypeORM. 
 
-Microservice ที่มีการใช้ ORM และใช้ฐานข้อมูลเดียวกัน
-จำเป็นต้องสร้าง service 
-เฉพาะสำหรับการทำ Migration และทำการแชร์ entities(Object) 
-ของฐานข้อมูลให้แต่ละ service ใช้งาน ตัวอย่างนี้ใช้ SQLite เพื่อง่ายในการทดสอบ
-
-ตัวอย่างนี้สำหรับทำ workshop เพื่อทำความเข้าใจ Mono Repo และ 
-การจัดการ Migration แบบรวมศูนย์
-ไม่แนะนำ clone repo ออกมา ให้ทำตามขั้นตอนในเอกสารนี้ 
-แล้วใช้ repo นี้เพื่ออ้างอิงโค้ดและคอนฟิก เพื่อการเรียนรู้
+ในระบบ Microservice ที่แต่ละ service มีการใช้ ORM และใช้ฐานข้อมูลเดียวกันอยู่จะมีความซับซ้อนในการ Migration
+- จำเป็นต้องทำ Migration ที่ service เดียว 
+- แชร์โค้ดใน packages ใน scope ชื่อ @ms-mono-share เพื่อให้ services ใช้และไม่เกิดการซ้ำซ้อน
+- มีการแชร์ entities(Object) ของฐานข้อมูลให้แต่ละ service ใช้งาน จะทำให้แต่ละ service เข้าถึงฐานข้อมูลได้โดยตรงผ่าน TypeORM จะใช้ SQLite เพื่อง่ายในการทดสอบ
+- มีตัวอย่างการสร้าง Docker Image ให้เพร้อมใช้งานกับ Microservice
+- โค้ดตัวอย่างนี้ออกแบบไว้สำหรับสำหรับทำ workshop 
+เพื่อทำความเข้าใจ Mono Repo และ การจัดการ Migration แบบรวมศูนย์
+ไม่แนะนำให้ clone repo ออกมา ให้ทำตามขั้นตอนในเอกสารนี้ 
+ก็อปโค้ดจาก repo ทีละไฟล์มาใช้ เพื่อให้เข้าใจหลักการทำงานอย่างแท้จริง
 
 ## Project Structure
 โครงสร้างนี้จะเป็น Mono Repo มีสอง Workspace (packages,services) โดยตัวอย่างใช้ Typescript 
-สามารถปรับใช้กับภาษาอื่นได้ พวก โค้ดที่ใช้ร่วมกันควรเอามาใส่ใน packages
+สามารถปรับใช้กับภาษาอื่นได้ พวก 
+- data จะเป็น volume สำหรับเก็บฐานข้อมูล SQLite
+- node_modules จะแชร์ node package ให้กับทุก packages และ services
+- tsconfig.base.json จะแชร์การตั้งค่า tsconfig.json
 - packages/database-entities แชร์ entities ของ database 
 ถ้า Workspace มีการสร้างตารางใหม่ก็ควรมาอัปเดตโค้ดตรงนี้
+- packages/database ตัวอย่างการแชร์โค้ดให้แต่ละ service ในที่นี้จะแชร์ DataSource
 - services/migration-service สำหรับทำ migration เพียงตัวเดียว
 - services/product-service จัดการเกี่ยวกับ Product
 - services/order-service จัดการเกี่ยวกับ Order
@@ -23,13 +27,16 @@ Microservice ที่มีการใช้ ORM และใช้ฐาน�
 ```
 Repo
 ├─ data
-│  └─ ms_db.sqlite
 ├─ node_modules
 ├─ package.json
-├─ tsconfig.json
 ├─ tsconfig.base.json
 ├─ packages
-│  └─ database-entities
+│  ├─ database-entities
+│  │  ├─ src
+│  │  │  └─ index.ts
+│  │  ├─ package.json
+│  │  └─ tsconfig.json
+│  └─ database
 │     ├─ src
 │     │  └─ index.ts
 │     ├─ package.json
@@ -37,6 +44,7 @@ Repo
 └─ services
    ├─ migration-service
    │  ├─ src
+   │  │  ├─ migrations   
    │  │  └─ index.ts
    │  ├─ package.json
    │  └─ tsconfig.json
@@ -52,7 +60,7 @@ Repo
       └─ tsconfig.json
 ```
 ## Create Mono Repo
-database-entities ให้ scope เป็น @ms-mono-share 
+packages ให้ scope เป็น @ms-mono-share จะเกิด symbolic link แต่ละ package ใน node_modules/@@ms-mono-share
 ```sh
 cd <mono-repo-folder>
 npm init -y
@@ -67,15 +75,13 @@ npm i @ms-mono-share/database-entities -w services/order-service
 ```
 
 ## Install Dependencies
-database-entities จะติดถูกตั้งบนทุก service 
+@ms-mono-share/database-entities จะติดถูกตั้งบนทุก service และ packages//database 
 ```sh
-npm i @ms-mono-share/database-entities -w @ms-mono-share/database
-npm i @ms-mono-share/database-entities -w services/migration-service
-npm i @ms-mono-share/database-entities -w services/product-service
-npm i @ms-mono-share/database-entities -w services/order-service
+npm i @ms-mono-share/database-entities -w @ms-mono-share/database \
+-w services/migration-service -w services/product-service -w services/order-service
 
 ```
-ติดตั้ง Dependencies ที่แต่ละตัวใช้
+ติดตั้ง Dependencies ที่แต่ละตัวใช้ (จริงๆแล้วถ้าติดตั้งที่ root โปรเจ็กก็จะมองเห็นทั้งหมด แต่จะแยกเพื่อให้เข้าใจว่าตัวไหนใช้อะไรบ้าง)
 ```sh
 ## database-entities
 npm i typeorm -w @ms-mono-share/database-entities
@@ -84,24 +90,24 @@ npm i -D typescript rimraf -w @ms-mono-share/database-entities
 npm i typeorm sqlite3 dotenv -w @ms-mono-share/database
 npm i -D typescript -w @ms-mono-share/database
 ## all services
-npm i dotenv typeorm express -w services/migration-service \
+npm i typeorm express -w services/migration-service \
   -w services/product-service -w services/order-service
 npm i -D typescript @types/express -w services/migration-service \
   -w services/product-service -w services/order-service
-npm remove ts-node-dev -w services/migration-service
-
 ```
 ## Code
-ดูโครงสร้างใน git ที่ตรงกับโค้ดตอนนี้
-- ใน root ของ Repo นำไฟล์ [tsconfig.json](tsconfig.json), 
-[ttsconfig.base.jsont](tsconfig.base.json) 
+ดูโครงสร้างใน repo [schooltechx/ms-mono-typeorm](https://github.com/schooltechx/ms-mono-typeorm) เปรียบเทียบกับที่ได้ตอนนี้แล้วเติมส่วนที่ขาด
+- ใน root ของ Repo นำไฟล์
+[docker-compose.yml](docker-compose.yml) 
+[tsconfig.json](tsconfig.json), 
+[tsconfig.base.json](tsconfig.base.json) 
 และ [text.http](test.http) มาใส่
-- ใน root ของ Repo แก้ส่วน scripts ของ [package.json](package.json)
-- ก้อปโค้ด ใน src, .env, tsconfig.json ของแต่ละ workspace มาใส่
-- ดูส่วน main, scripts ใน package.json ของแต่ละ workspace มาใส่ 
-(แพ็กเกจ database-entities จำเป็นต้องระบุตำแหน่งของ script ที่ทำงานใน main)
+- ใน root ของ Repo แก้ส่วน scripts ของ [package.json](package.json),แก้ [.env.example](.env.example) เป็น .env
+- ก้อปโค้ด ใน src, tsconfig.json ของแต่ละ workspace มาใส่ แก้ .env.example เป็น .env
+- ดูส่วน main, scripts ใน package.json ของแต่ละ workspace มาใส่
 
 ## Build & Clean
+รันคำสั่งจาก root ของ Repo ได้เลย
 ```sh
 ## Build
 npm run build -w @ms-mono-share/database-entities
@@ -121,8 +127,7 @@ npm run clean -w services/order-service
 npm run build --workspaces --if-present
 npm run clean --workspaces --if-present
 ```
-*แต่ npm ไม่สามารถจัดการ build sequence หรือ build dependency ได้ 
-ควร build ใน packages ใน services ก่อน ตอนนี้ได้ทำ script สำหรับการนี้แล้วใน [package.json](package.json)
+*แต่ npm ไม่สามารถจัดการ build sequence หรือ build dependency ได้ ควร build ใน packages เป็นอันดับแรก ตอนนี้ได้ทำ script สำหรับการนี้แล้วใน [package.json](package.json)*
 ```
 npm run build-all
 npm run clean-all
@@ -141,7 +146,8 @@ npm run migrate -w services/migration-service
 ```
 - ทุก services มีการใช้ฐานข้อมูลควรตั้งค่าตัวแปรแวดล้อม DB_DATABASE ใน .env ให้ดูตัวอย่างในไฟล์ [.env.example](services/migration-service/.env.example)
 - ตำแหน่งของการเรียกใช้โค้ดสำหรับ Migration ตอนพัฒนาเช่นผ่าน scripts ใน package.json อยู่ที่ src/migrations/**/*.ts 
-- ตำแหน่งของการเรียกใช้โค้ดสำหรับ Migration ตอนเรียกใช้โปรแกรม(เช่นใน docker) ใช้งานจะเรียกใน dist จะอยู่ที่ __dirname + "/migrations/**/*.{ts,js}"
+- ตำแหน่งของการเรียกใช้โค้ดสำหรับ Migration ตอนเรียกใช้โปรแกรม(เช่นใน docker) จะเรียกใน dist จะอยู่ที่ __dirname + "/migrations/**/*.{ts,js}"
+- ถ้ากำหนดตำแหน่งโค้ดไม่ถูกต้อง Migration จะทำให้ไม่ทำงาน
 
 
 ## Start Services
@@ -153,13 +159,16 @@ npm start -w services/order-service
 ```
 ทดสอบด้วย [test.http](test.http)(Rest Client) หรือ curl เนื่องจากไม่มีข้อมูลจะส่ง Empty Array กลับมา
 ```sh
+curl -i http://localhost:3000/migrate 
 curl -i http://localhost:3002/products 
 curl -i http://localhost:3003/orders
 ```
 
 ## Docker
-ทุก service มี Dockerfile สำหรับสร้างอิมเมจ มี [docker-compose.yml](docker-compose.yml) ที่พร้อมใช้งาน
-
+จะมี [docker-compose.yml](docker-compose.yml) เตรียมไว้
+ทุก service มี 
+[Dockerfile](services/migration-service/Dockerfile) 
+ให้ 
 ```sh
 docker compose build
 docker compose up -d
