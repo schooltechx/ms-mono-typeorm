@@ -1,4 +1,5 @@
 {
+  
   "compilerOptions": {
     "target": "es2020",
     "module": "commonjs",
@@ -12,6 +13,7 @@
     "incremental": true,
     "skipLibCheck": true,
     "noEmitOnError": true,
+    
   }
   
 }

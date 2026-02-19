@@ -1,0 +1,16 @@
+# .dockerignore - Keep the build context lean
+**/tsconfig.tsbuildinfo
+node_modules
+**/node_modules
+**/dist
+**/.next
+.git
+*.md
+.env*
+.vscode
+.idea
+coverage
+**/__tests__
+**/*.test.*
+**/*.spec.*
+**/Dockerfile

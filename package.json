@@ -4,7 +4,8 @@
   "description": "The example project shows how to do migration in Microservice, use Mono Repo and TypeORM.",
   "main": "index.js",
   "scripts": {
-    "build-all": "npm run build --workspaces --if-present",
+    "build-shared": "npm run build -w @ms-mono-share/database-entities && npm run build -w @ms-mono-share/database",
+    "build-all": "npm run build-shared && npm run build --workspaces --if-present",
     "clean-all": "npm run clean --workspaces --if-present"
   },
   "repository": {

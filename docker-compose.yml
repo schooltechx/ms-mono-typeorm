@@ -1,0 +1,34 @@
+# for debug build use
+# docker compose build --no-cache migration-service --progress=plain
+services:
+  migration-service:
+    build:
+      context: .
+      dockerfile: services/migration-service/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DB_DATABASE : ${DB_DATABASE}
+    volumes:
+      - ./data:/data 
+  product-service:
+    build:
+      context: .
+      dockerfile: services/product-service/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      DB_DATABASE : ${DB_DATABASE}
+    volumes:
+      - ./data:/data 
+
+  order-service:
+    build:
+      context: .
+      dockerfile: services/order-service/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      DB_DATABASE : ${DB_DATABASE}
+    volumes:
+      - ./data:/data 

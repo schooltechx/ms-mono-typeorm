@@ -2,12 +2,14 @@
   "name": "migration-service",
   "version": "1.0.0",
   "description": "",
-  "main": "/dist/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "build": "tsc",
-    "migrate": "ts-node-dev src/migrate.ts"
+    "migration:create": "npx typeorm-ts-node-commonjs migration:create",
+    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate -d ../../packages/database/dist/data-source.js",
+    "migration:run": "npx typeorm-ts-node-commonjs migration:run -d ../../packages/database/dist/data-source.js"
   },
   "keywords": [],
   "author": "",
@@ -17,12 +19,11 @@
     "@ms-mono-share/database-entities": "^1.0.0",
     "dotenv": "^16.6.1",
     "express": "^5.2.1",
-    "sqlite3": "^5.1.7",
-    "ts-node-dev": "^2.0.0",
     "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }

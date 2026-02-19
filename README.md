@@ -79,7 +79,7 @@ npm i @ms-mono-share/database-entities -w services/order-service
 ```sh
 ## database-entities
 npm i typeorm -w @ms-mono-share/database-entities
-npm i -D typescript -w @ms-mono-share/database-entities
+npm i -D typescript rimraf -w @ms-mono-share/database-entities
 ## database
 npm i typeorm sqlite3 dotenv -w @ms-mono-share/database
 npm i -D typescript -w @ms-mono-share/database
@@ -88,7 +88,7 @@ npm i dotenv typeorm express -w services/migration-service \
   -w services/product-service -w services/order-service
 npm i -D typescript @types/express -w services/migration-service \
   -w services/product-service -w services/order-service
-npm i ts-node-dev -w services/migration-service
+npm remove ts-node-dev -w services/migration-service
 
 ```
 ## Code
@@ -122,18 +122,28 @@ npm run build --workspaces --if-present
 npm run clean --workspaces --if-present
 ```
 *แต่ npm ไม่สามารถจัดการ build sequence หรือ build dependency ได้ 
-ควร build ใน packages ก่อนใน services ถึงจะหาเจอ*
+ควร build ใน packages ใน services ก่อน ตอนนี้ได้ทำ script สำหรับการนี้แล้วใน [package.json](package.json)
+```
+npm run build-all
+npm run clean-all
+```
 
 ## Migration
+
 จะทำ migrate จากศูนย์กลางโดยใช้ services/migration-service 
-โค้ดสำหรับ migration เก็บที่ services/migration-service/src/migrations/*.ts
-หลังจากรัน npm run migrate จะเกิดไฟล์ data/ms_db.sqlite
+โค้ดจาก migration:generate เก็บที่ services/migration-service/src/migrations/*.ts
 
 ```sh
-npx typeorm migration:generate services/migration-service/src/migrations/Init \
-  -d services/migration-service/src/data-source.ts 
+npm run migration:generate -w services/migration-service -- src/migrations/InitTable
+npm run migration:create -w services/migration-service -- src/migrations/SeedData
+npm run migration:run -w services/migration-service
 npm run migrate -w services/migration-service
 ```
+- ทุก services มีการใช้ฐานข้อมูลควรตั้งค่าตัวแปรแวดล้อม DB_DATABASE ใน .env ให้ดูตัวอย่างในไฟล์ [.env.example](services/migration-service/.env.example)
+- ตำแหน่งของการเรียกใช้โค้ดสำหรับ Migration ตอนพัฒนาเช่นผ่าน scripts ใน package.json อยู่ที่ src/migrations/**/*.ts 
+- ตำแหน่งของการเรียกใช้โค้ดสำหรับ Migration ตอนเรียกใช้โปรแกรม(เช่นใน docker) ใช้งานจะเรียกใน dist จะอยู่ที่ __dirname + "/migrations/**/*.{ts,js}"
+
+
 ## Start Services
 เรียกใช้งาน 
 ```sh
@@ -147,8 +157,34 @@ curl -i http://localhost:3002/products
 curl -i http://localhost:3003/orders
 ```
 
+## Docker
+ทุก service มี Dockerfile สำหรับสร้างอิมเมจ มี [docker-compose.yml](docker-compose.yml) ที่พร้อมใช้งาน
+
+```sh
+docker compose build
+docker compose up -d
+docker compose down
+```
+ทุก services มีการใช้ฐานข้อมูลควรตั้งค่าตัวแปรแวดล้อม DB_DATABASE ใน .env ให้ดูตัวอย่างในไฟล์ [.env.example](.env.example)
+
+
+
 ## Homework
 - ลองสร้างอีก workspace ชื่อ services/user-service ใช้ port 3001 
 มี Entities [User.ts](packages/database-entities/src/User.ts) เตรียมไว้แล้ว
 อาจจะใช้ Framework ที่ต่างออกไปก็ได้เช่น Elysia.js, TSOA
 - เพิ่มข้อมูล แล้วสร้าง API CRUD ให้สมบูรณ์
+
+
+## Sparc checkout
+TODO: complete this section
+```sh
+# Add another directory to your sparse checkout
+git sparse-checkout add src/config
+
+# Or give up and get everything
+git sparse-checkout disable
+```
+
+## Misc
+- [How to Structure a Monorepo with Docker](https://oneuptime.com/blog/post/2026-02-08-how-to-structure-a-monorepo-with-docker/view)

@@ -16,7 +16,12 @@ AppDataSource.initialize()
 
 app.get("/orders", async (req, res) => {
   const orderRepository = AppDataSource.getRepository(Order);
-  const orders = await orderRepository.find();
+  const orders = await orderRepository.find({
+  relations: {
+    user: true,
+    product: true,
+  },
+});
   res.json(orders);
 });
 
