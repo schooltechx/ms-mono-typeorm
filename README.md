@@ -199,7 +199,7 @@ Git 2.25+
 
 ```sh
 # Sparc checkout. Get only files in root repo
-git clone --filter=blob:none --sparse git@github.com-schooltechx:schooltechx/ms-mono-typeorm.git
+git clone --filter=blob:none --sparse git@github.com:schooltechx/ms-mono-typeorm.git
 cd ms-mono-typeorm
 git sparse-checkout set packages/database-entities packages/database 
 git sparse-checkout list
@@ -219,10 +219,23 @@ git sparse-checkout disable
 ```bash
 brew install act
 ```
-เรียใช้ Workflow build-a-service.yaml, job build-docker และใช้ imput เป็น migration-service
+สร้าง personal access token สำหรับใช้กับ Workflow ของ Github Action
+- ไปที่การตั้งค่า profile ของ GitHub, 
+- คลิ้กที่ “Developer settings”
+- คลิ้กที่ “Personal access tokens/Fine-grained personal access tokens”
+- เลือกสิทธิ์ที่จะให้ กรณีนี้เป็น public repo อยู่แล้วไม่ต้องให้สิทธิ์อะไรเพิ่ม
+- คลิ้กที่ “Generate new token” ให้เก็บค่านี้ไว้
+
+ค่า token ควรเก็บไว้ที่ [secret](https://nektosact.com/usage/#secrets) 
+ถ้าใช้กับ act สามารถใช้ผ่านพารามิเตอรื "--secret TOKEN=XXX" หรือไฟล์ [.secrets](.secrets.example)
+
+เรียใช้ [build-a-service.yaml](.github/workflows/build-a-service.yaml),
+job build-docker และใช้ input เพื่อรับค่า service ที่ต้องการ ตัวอย่างใช้ migration-service
 ```bash
-act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service
+act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service 
 ```
+
+
 
 ## Misc
 - [How to Structure a Monorepo with Docker](https://oneuptime.com/blog/post/2026-02-08-how-to-structure-a-monorepo-with-docker/view)

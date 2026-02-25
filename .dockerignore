@@ -1,4 +1,5 @@
 # .dockerignore - Keep the build context lean
+.secret*
 **/tsconfig.tsbuildinfo
 node_modules
 **/node_modules

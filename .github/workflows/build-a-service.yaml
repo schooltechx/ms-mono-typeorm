@@ -1,4 +1,4 @@
-# act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service
+# act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service -s TOKEN=xxxx
 name: Build a Service
 
 on:
@@ -17,14 +17,18 @@ jobs:
   build-docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+
+      - uses: actions/checkout@v6
         with:
-          # fetch-depth: 0
+          repository: "schooltechx/ms-mono-typeorm"
+          ref: "main"
+          token: ${{secrets.TOKEN}}
           sparse-checkout: |
+            ${{env.SERVICE_FOLDER}}
             packages
-            services/${{env.SERVICE_FOLDER}}
+            
       - run: |
-          ls -la . packages 
+          ls -la . services
       - run: |
           docker build -t ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}} -f ${{env.SERVICE_FOLDER}}/Dockerfile .
 ## push to registry if needed
