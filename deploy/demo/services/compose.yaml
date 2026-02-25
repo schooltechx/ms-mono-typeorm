@@ -13,6 +13,7 @@ services:
     # Available tags can be found here: https://github.com/kimdre/doco-cd/pkgs/container/doco-cd
     image: ghcr.io/kimdre/doco-cd:latest
     restart: unless-stopped
+    user: "1000:1000" 
     ports:
       - "9080:80" # Webhook endpoint
       - "9120:9120" # Prometheus metrics
@@ -26,10 +27,30 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # The data volume (left side) can also be replaced with a bind mount to a local directory, for example:
       # - ./data:/data
-      - ./data:/data
+      - ./data_doco-cd:/data
     healthcheck:
       test: [ "CMD", "/doco-cd", "healthcheck" ]
       start_period: 15s
       interval: 30s
       timeout: 5s
       retries: 3
+
+
+  traefik:
+    image: traefik:v3.6
+    command:
+      - --api.insecure=true
+      # - --log.level=DEBUG
+      - --providers.docker
+      - --entrypoints.web.address=:80
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+
+networks:
+  default:
+    name: demo
+    external: true

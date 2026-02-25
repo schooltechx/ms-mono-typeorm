@@ -1,8 +1,6 @@
-# for debug build use
-# docker compose build --no-cache migration-service --progress=plain
 services:
   migration-service:
-    image: ms-mono-typeorm/migration-service:1.1
+    image: ms-mono-typeorm/migration-service:1.0
     volumes:
       - ./data:/data 
     labels:
@@ -10,16 +8,15 @@ services:
       - "traefik.http.routers.migration-service.rule=Host(`ms-mono-typeorm.local`) && PathPrefix(`/migrate`)"
       - "traefik.http.routers.migration-service.entrypoints=web"
   product-service:
-    image: ms-mono-typeorm/product-service:1.1
+    image: ms-mono-typeorm/product-service:1.0
     volumes:
       - ./data:/data 
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.product-service.rule=Host(`ms-mono-typeorm.local`) && PathPrefix(`/products`)"
       - "traefik.http.routers.product-service.entrypoints=web"
-
   order-service:
-    image: ms-mono-typeorm/order-service:1.1
+    image: ms-mono-typeorm/order-service:1.0
     volumes:
       - ./data:/data 
     labels:
@@ -27,16 +24,7 @@ services:
       - "traefik.http.routers.order-service.rule=Host(`ms-mono-typeorm.local`) && PathPrefix(`/orders`)"
       - "traefik.http.routers.order-service.entrypoints=web"
 
-  traefik:
-    image: traefik:v3.6
-    container_name: traefik
-    command:
-      - --api.insecure=true
-      # - --log.level=DEBUG
-      - --providers.docker
-      - --entrypoints.web.address=:80
-    ports:
-      - "80:80"
-      - "8080:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+networks:
+  default:
+    name: demo
+    external: true
