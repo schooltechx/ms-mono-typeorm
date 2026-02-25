@@ -215,12 +215,14 @@ git sparse-checkout disable
 ```
 ## Github Actions
 [nektos/act](https://github.com/nektos/act) 
-ใช้เพื่อทดสอบแทน Github Action จริงๆ
-Note: Not finished yet
-```
+ใช้เพื่อทดสอบแทน Github Action ติดตั้งดังนี้
+```bash
 brew install act
 ```
-
+เรียใช้ Workflow build-a-service.yaml, job build-docker และใช้ imput เป็น migration-service
+```bash
+act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service
+```
 
 ## Misc
 - [How to Structure a Monorepo with Docker](https://oneuptime.com/blog/post/2026-02-08-how-to-structure-a-monorepo-with-docker/view)
