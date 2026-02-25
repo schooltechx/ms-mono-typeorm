@@ -2,33 +2,41 @@
 # docker compose build --no-cache migration-service --progress=plain
 services:
   migration-service:
-    image: ms-mono-typeorm/migration-service:latest
+    image: ms-mono-typeorm/migration-service:1.1
     volumes:
       - ./data:/data 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.migration-service.rule=Host(`ms-mono-typeorm.local`) && PathPrefix(`/migrate`)"
+      - "traefik.http.routers.migration-service.entrypoints=web"
   product-service:
-    image: ms-mono-typeorm/product-service:latest
-    ports:
-      - "3002:80"
+    image: ms-mono-typeorm/product-service:1.1
     volumes:
       - ./data:/data 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.product-service.rule=Host(`ms-mono-typeorm.local`) && PathPrefix(`/products`)"
+      - "traefik.http.routers.product-service.entrypoints=web"
 
   order-service:
-    image: ms-mono-typeorm/order-service:latest
+    image: ms-mono-typeorm/order-service:1.1
     volumes:
       - ./data:/data 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.order-service.rule=Host(`ms-mono-typeorm.local`) && PathPrefix(`/orders`)"
+      - "traefik.http.routers.order-service.entrypoints=web"
 
-
-  conops:
-    image: anurag1201/conops:latest
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    command:
+      - --api.insecure=true
+      # - --log.level=DEBUG
+      - --providers.docker
+      - --entrypoints.web.address=:80
     ports:
+      - "80:80"
       - "8080:8080"
-    environment:
-      - CONOPS_RUNTIME_DIR=/tmp/conops-runtime
-      - DB_TYPE=sqlite
     volumes:
-      # Persist SQLite DB and encryption keys
-      - ./data_conops:/data
-      # Allow ConOps to manage sibling containers
-      - /var/run/docker.sock:/var/run/docker.sock
-      # Runtime directory for checkouts
-      - /tmp/conops-runtime:/tmp/conops-runtime
+      - /var/run/docker.sock:/var/run/docker.sock:ro

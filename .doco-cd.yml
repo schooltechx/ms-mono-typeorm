@@ -1,0 +1,5 @@
+name: ms-mono-typeorm-project # name of the deployed stack/project
+reference: main # use this branch for deployment
+working_dir: deploy/ # move to this sub-directory for deployment
+compose_files: # List of docker compose files to use in descending order
+  - compose.yml
