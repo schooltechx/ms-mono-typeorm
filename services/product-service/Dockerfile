@@ -42,5 +42,5 @@ COPY --from=base /app/packages/database-entities/dist/ ./packages/database-entit
 COPY --from=base /app/packages/database/dist/ ./packages/database/dist/
 COPY --from=base /app/services/product-service/dist/ ./services/product-service/dist/
 
-EXPOSE 3002
+EXPOSE 80
 CMD ["node", "services/product-service/dist/index.js"]
