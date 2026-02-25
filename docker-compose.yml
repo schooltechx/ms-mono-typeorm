@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: services/migration-service/Dockerfile
     ports:
-      - "3000:3000"
+      - "3000:80"
     environment:
       DB_DATABASE : ${DB_DATABASE}
     volumes:
@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: services/product-service/Dockerfile
     ports:
-      - "3002:3002"
+      - "3002:80"
     environment:
       DB_DATABASE : ${DB_DATABASE}
     volumes:
@@ -27,7 +27,7 @@ services:
       context: .
       dockerfile: services/order-service/Dockerfile
     ports:
-      - "3003:3003"
+      - "3003:80"
     environment:
       DB_DATABASE : ${DB_DATABASE}
     volumes:

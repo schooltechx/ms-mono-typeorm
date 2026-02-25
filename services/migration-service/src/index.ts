@@ -1,10 +1,11 @@
 // import "reflect-metadata";
+import 'dotenv/config';
 import express from "express";
 import { AppDataSource } from "@ms-mono-share/database";
 const migrationsDir = __dirname + "/migrations/**/*.{ts,js}";
 console.log("Migration service directory: "+migrationsDir)
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 80;
 AppDataSource.setOptions({
   migrations: [migrationsDir],
 });

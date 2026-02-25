@@ -1,7 +1,8 @@
 # ms-mono-typeorm
-The example project shows how to do centralized migration in Microservice, use Mono Repo and TypeORM. 
+The example project shows how to do centralized migration in Microservice, use Mono Repo and TypeORM. This situation you can't use Database Per Service Pattern for some reason.
 
-ในระบบ Microservice ที่แต่ละ service มีการใช้ ORM และใช้ฐานข้อมูลเดียวกันอยู่จะมีความซับซ้อนในการ Migration
+ในระบบ Microservice ที่ไม่สามารใช้ Database Per Service Pattern ได้
+โดยที่แต่ละ service มีการใช้ ORM และใช้ฐานข้อมูลเดียวกัน(Datasource) จะมีความซับซ้อนในการ Migration
 - จำเป็นต้องทำ Migration ที่ service เดียว 
 - แชร์โค้ดใน packages ใน scope ชื่อ @ms-mono-share เพื่อให้ services ใช้และไม่เกิดการซ้ำซ้อน
 - มีการแชร์ entities(Object) ของฐานข้อมูลให้แต่ละ service ใช้งาน จะทำให้แต่ละ service เข้าถึงฐานข้อมูลได้โดยตรงผ่าน TypeORM จะใช้ SQLite เพื่อง่ายในการทดสอบ
@@ -75,7 +76,7 @@ npm i @ms-mono-share/database-entities -w services/order-service
 ```
 
 ## Install Dependencies
-@ms-mono-share/database-entities จะติดถูกตั้งบนทุก service และ packages//database 
+@ms-mono-share/database-entities จะติดถูกตั้งบนทุก service และ packages/database 
 ```sh
 npm i @ms-mono-share/database-entities -w @ms-mono-share/database \
 -w services/migration-service -w services/product-service -w services/order-service
@@ -139,10 +140,12 @@ npm run clean-all
 โค้ดจาก migration:generate เก็บที่ services/migration-service/src/migrations/*.ts
 
 ```sh
+# Create Migration form database-entities
 npm run migration:generate -w services/migration-service -- src/migrations/InitTable
+npm run migration:generate -w services/migration-service -- src/migrations/AddCache
+# Empty migration. Add seed data here
 npm run migration:create -w services/migration-service -- src/migrations/SeedData
 npm run migration:run -w services/migration-service
-npm run migrate -w services/migration-service
 ```
 - ทุก services มีการใช้ฐานข้อมูลควรตั้งค่าตัวแปรแวดล้อม DB_DATABASE ใน .env ให้ดูตัวอย่างในไฟล์ [.env.example](services/migration-service/.env.example)
 - ตำแหน่งของการเรียกใช้โค้ดสำหรับ Migration ตอนพัฒนาเช่นผ่าน scripts ใน package.json อยู่ที่ src/migrations/**/*.ts 
@@ -174,9 +177,14 @@ docker compose build
 docker compose up -d
 docker compose down
 ```
+สำหรับการ build จาก root repo ใช้คำสั่งนี้
+```sh
+docker build -t migration-service:latest -f services/migration-service/Dockerfile .
+docker build -t product-service:latest -f services/product-service/Dockerfile .
+docker build -t order-service:latest -f services/order-service/Dockerfile .
+```
+
 ทุก services มีการใช้ฐานข้อมูลควรตั้งค่าตัวแปรแวดล้อม DB_DATABASE ใน .env ให้ดูตัวอย่างในไฟล์ [.env.example](.env.example)
-
-
 
 ## Homework
 - ลองสร้างอีก workspace ชื่อ services/user-service ใช้ port 3001 
@@ -184,16 +192,39 @@ docker compose down
 อาจจะใช้ Framework ที่ต่างออกไปก็ได้เช่น Elysia.js, TSOA
 - เพิ่มข้อมูล แล้วสร้าง API CRUD ให้สมบูรณ์
 
-
 ## Sparc checkout
-TODO: complete this section
-```sh
-# Add another directory to your sparse checkout
-git sparse-checkout add src/config
+Git 2.25+
+- cone mode ในคำสั่งเดียวใช้ --sparse
+- ใช้ร่วมกับ partial clone ใช้ --filter=blob:none 
 
-# Or give up and get everything
+```sh
+# Sparc checkout. Get only files in root repo
+git clone --filter=blob:none --sparse git@github.com-schooltechx:schooltechx/ms-mono-typeorm.git
+cd ms-mono-typeorm
+git sparse-checkout set packages/database-entities packages/database 
+git sparse-checkout list
+# Switch to feature branch, Still only database-entities, database,migration-service  checked out
+git checkout feature-branch
+# If feature branch has new directories you need:
+git sparse-checkout add services/migration-service
+git sparse-checkout add services/product-service
+# If working directory gets out of sync
+git sparse-checkout reapply
+# Restore full working directory
 git sparse-checkout disable
 ```
+## Github Actions
+[nektos/act](https://github.com/nektos/act) 
+ใช้เพื่อทดสอบแทน Github Action จริงๆ
+Note: Not finished yet
+```
+brew install act
+```
+
 
 ## Misc
 - [How to Structure a Monorepo with Docker](https://oneuptime.com/blog/post/2026-02-08-how-to-structure-a-monorepo-with-docker/view)
+- [TypeORM Caching queries](https://typeorm.io/docs/query-builder/caching/)
+- [Node js Microservices Series](https://medium.com/@afdulrohmat03/node-js-microservices-series-bookstore-project-part-1-introduction-tech-stack-and-setup-829744408745)
+- [How to Configure Git Sparse Checkout](https://oneuptime.com/blog/post/2026-01-24-git-sparse-checkout/view)
+- [Skip the Push: How to Debug GitHub Actions Locally Using Nektos/Act](https://levelup.gitconnected.com/skip-the-push-how-to-debug-github-actions-locally-using-nektos-act-fe518e53f1ed)

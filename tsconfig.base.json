@@ -9,7 +9,7 @@
     "emitDecoratorMetadata": true,
     "composite": true,
     "declaration": true,
-    "declarationMap": true,
+    "declarationMap": false,
     "incremental": true,
     "skipLibCheck": true,
     "noEmitOnError": true,

@@ -1,10 +1,11 @@
-import "reflect-metadata";
+// import "reflect-metadata";
+import 'dotenv/config';
 import express from "express";
 import { AppDataSource } from "@ms-mono-share/database";
 import { Order } from "@ms-mono-share/database-entities";
 
 const app = express();
-const port = 3003;
+const port = process.env.PORT || 80;
 
 AppDataSource.initialize()
   .then(() => {
@@ -16,7 +17,7 @@ AppDataSource.initialize()
 
 app.get("/orders", async (req, res) => {
   const orderRepository = AppDataSource.getRepository(Order);
-  const orders = await orderRepository.find({
+  const orders = await orderRepository.find({cache:true,
   relations: {
     user: true,
     product: true,
