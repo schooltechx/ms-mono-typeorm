@@ -1,6 +1,6 @@
 services:
   migration-service:
-    image: ms-mono-typeorm/migration-service:1.0
+    image: ms-mono-typeorm/migration-service:1.2
     volumes:
       - ./data:/data 
     labels:
@@ -8,7 +8,7 @@ services:
       - "traefik.http.routers.migration-service.rule=Host(`ms-mono-typeorm.local`) && PathPrefix(`/migrate`)"
       - "traefik.http.routers.migration-service.entrypoints=web"
   product-service:
-    image: ms-mono-typeorm/product-service:1.0
+    image: ms-mono-typeorm/product-service:1.2
     volumes:
       - ./data:/data 
     labels:
@@ -16,7 +16,7 @@ services:
       - "traefik.http.routers.product-service.rule=Host(`ms-mono-typeorm.local`) && PathPrefix(`/products`)"
       - "traefik.http.routers.product-service.entrypoints=web"
   order-service:
-    image: ms-mono-typeorm/order-service:1.0
+    image: ms-mono-typeorm/order-service:1.2
     volumes:
       - ./data:/data 
     labels:

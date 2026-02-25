@@ -13,7 +13,6 @@ services:
     # Available tags can be found here: https://github.com/kimdre/doco-cd/pkgs/container/doco-cd
     image: ghcr.io/kimdre/doco-cd:latest
     restart: unless-stopped
-    user: "1000:1000" 
     ports:
       - "9080:80" # Webhook endpoint
       - "9120:9120" # Prometheus metrics
