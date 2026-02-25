@@ -1,0 +1,10 @@
+### 
+GET http://ms-mono-typeorm.local/migrate HTTP/1.1
+content-type: application/json
+### 
+GET http://ms-mono-typeorm.local/products HTTP/1.1
+content-type: application/json
+### 
+GET http://ms-mono-typeorm.local/orders HTTP/1.1
+content-type: application/json
+

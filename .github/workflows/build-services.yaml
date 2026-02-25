@@ -1,0 +1,31 @@
+# act --workflows .github/workflows/build-services.yaml -j build-docker --input TAG=1.0 -s TOKEN=xxxx
+
+name: Build a Service
+on:
+  workflow_dispatch:
+    inputs:
+      TAG:
+        description: "tag for the image"
+        type: string
+
+env:
+  SERVICE_FOLDER: services/${{github.event.inputs.NAME}}
+  IMAGE_NAME: ms-mono-typeorm/${{github.event.inputs.NAME}}
+  IMAGE_TAG: ${{github.event.inputs.TAG}}
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v6
+        with:
+          repository: "schooltechx/ms-mono-typeorm"
+          ref: "main"
+          token: ${{secrets.TOKEN}}
+      - run: |
+          docker build -t ms-mono-typeorm/migration-service:${{env.IMAGE_TAG}} -t ms-mono-typeorm/migration-service:latest -f services/migration-service/Dockerfile .
+          docker build -t ms-mono-typeorm/product-service:${{env.IMAGE_TAG}} -t ms-mono-typeorm/product-service:latest -f services/product-service/Dockerfile .
+          docker build -t ms-mono-typeorm/order-service:${{env.IMAGE_TAG}} -t ms-mono-typeorm/order-service:latest -f services/order-service/Dockerfile .
+
+## push to registry if needed

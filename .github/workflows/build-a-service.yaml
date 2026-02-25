@@ -1,17 +1,20 @@
-# act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service -s TOKEN=xxxx
-name: Build a Service
+# act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service --input TAG=1.0 -s TOKEN=xxxx
 
+name: Build a Service
 on:
   workflow_dispatch:
     inputs:
       NAME:
         description: "service name, e.g. migration-service, product-service, order-service"
         type: string
+      TAG:
+        description: "tag for the image"
+        type: string
 
 env:
   SERVICE_FOLDER: services/${{github.event.inputs.NAME}}
   IMAGE_NAME: ms-mono-typeorm/${{github.event.inputs.NAME}}
-  IMAGE_TAG: latest
+  IMAGE_TAG: ${{github.event.inputs.TAG}}
 
 jobs:
   build-docker:
@@ -30,5 +33,5 @@ jobs:
       - run: |
           ls -la . services
       - run: |
-          docker build -t ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}} -f ${{env.SERVICE_FOLDER}}/Dockerfile .
+          docker build -t ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}} -t ${{env.IMAGE_NAME}}:latest -f ${{env.SERVICE_FOLDER}}/Dockerfile .
 ## push to registry if needed
