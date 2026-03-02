@@ -1,4 +1,4 @@
-# act --workflows .github/workflows/build-services.yaml -j build-docker --input TAG=1.0 -s TOKEN=xxxx
+# act --workflows .github/workflows/build-services.yaml -j build-docker --input TAG=1.0 -s GH_TOKEN=xxxx
 
 name: Build a Service
 on:
@@ -9,8 +9,7 @@ on:
         type: string
 
 env:
-  SERVICE_FOLDER: services/${{github.event.inputs.NAME}}
-  IMAGE_NAME: ms-mono-typeorm/${{github.event.inputs.NAME}}
+  REGISTRY_BASE: ms-mono-typeorm.local/ms-mono-typeorm
   IMAGE_TAG: ${{github.event.inputs.TAG}}
 
 jobs:
@@ -22,10 +21,10 @@ jobs:
         with:
           repository: "schooltechx/ms-mono-typeorm"
           ref: "main"
-          token: ${{secrets.TOKEN}}
+          token: ${{secrets.GH_TOKEN}}
       - run: |
-          docker build -t ms-mono-typeorm/migration-service:${{env.IMAGE_TAG}} -t ms-mono-typeorm/migration-service:latest -f services/migration-service/Dockerfile .
-          docker build -t ms-mono-typeorm/product-service:${{env.IMAGE_TAG}} -t ms-mono-typeorm/product-service:latest -f services/product-service/Dockerfile .
-          docker build -t ms-mono-typeorm/order-service:${{env.IMAGE_TAG}} -t ms-mono-typeorm/order-service:latest -f services/order-service/Dockerfile .
+          docker build -t ${{env.REGISTRY_BASE}}/migration-service:${{env.IMAGE_TAG}} -t ${{env.REGISTRY_BASE}}/migration-service:latest -f services/migration-service/Dockerfile .
+          docker build -t ${{env.REGISTRY_BASE}}/product-service:${{env.IMAGE_TAG}} -t ${{env.REGISTRY_BASE}}/product-service:latest -f services/product-service/Dockerfile .
+          docker build -t ${{env.REGISTRY_BASE}}/order-service:${{env.IMAGE_TAG}} -t ${{env.REGISTRY_BASE}}/order-service:latest -f services/order-service/Dockerfile .
 
 ## push to registry if needed

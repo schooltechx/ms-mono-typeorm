@@ -1,4 +1,4 @@
-# act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service --input TAG=1.0 -s TOKEN=xxxx
+# act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service --input TAG=1.0
 
 name: Build a Service
 on:
@@ -13,7 +13,7 @@ on:
 
 env:
   SERVICE_FOLDER: services/${{github.event.inputs.NAME}}
-  IMAGE_NAME: ms-mono-typeorm/${{github.event.inputs.NAME}}
+  IMAGE_NAME: ms-mono-typeorm.local/demo/ms-mono-typeorm/${{github.event.inputs.NAME}}
   IMAGE_TAG: ${{github.event.inputs.TAG}}
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
         with:
           repository: "schooltechx/ms-mono-typeorm"
           ref: "main"
-          token: ${{secrets.TOKEN}}
+          token: ${{secrets.GH_TOKEN}}
           sparse-checkout: |
             ${{env.SERVICE_FOLDER}}
             packages
