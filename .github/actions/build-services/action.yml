@@ -1,0 +1,11 @@
+name: Build and push services
+description: 'Build and push services to registry'
+inputs:
+  TAG: {required: true, type: string}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build and push service image
+      run: |
+        echo "TAG=${{inputs.TAG}}"
