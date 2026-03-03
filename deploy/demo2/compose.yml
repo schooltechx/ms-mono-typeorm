@@ -1,0 +1,22 @@
+services:
+  # apisix:
+
+  migration-service:
+    container_name: migration-service
+    image: ms-mono-typeorm.local/ms-mono-typeorm/migration-service:latest
+    volumes:
+      - ./data_base:/data 
+  product-service:
+    container_name: product-service
+    image: ms-mono-typeorm.local/ms-mono-typeorm/product-service:latest
+    volumes:
+      - ./data_base:/data 
+  order-service:
+    container_name: order-service
+    image: ms-mono-typeorm.local/ms-mono-typeorm/order-service:latest
+    volumes:
+      - ./data_base:/data 
+networks:
+  default:
+    name: demo
+    external: true

@@ -7,7 +7,7 @@ x-poll-config: &poll-config
 #      target: ""  # Optional: use to target a specific deployment config file, e.g., "test" -> .doco-cd.test.yaml
 
 services:
-  app:
+  doco-cd:
     container_name: doco-cd
     # You can also pin to a specific tag (version)
     # Available tags can be found here: https://github.com/kimdre/doco-cd/pkgs/container/doco-cd
@@ -33,21 +33,6 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-
-
-  traefik:
-    image: traefik:v3.6
-    command:
-      - --api.insecure=true
-      # - --log.level=DEBUG
-      - --providers.docker
-      - --entrypoints.web.address=:80
-    ports:
-      - "80:80"
-      - "8080:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-
 
 networks:
   default:

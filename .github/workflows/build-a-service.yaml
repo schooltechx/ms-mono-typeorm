@@ -1,20 +1,18 @@
-# act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service --input TAG=1.0
+# act --workflows .github/workflows/build-a-service.yaml -j build-docker --input SERVICE_NAME=migration-service --input TAG=1.0
 
 name: Build a Service
 on:
   workflow_dispatch:
     inputs:
-      NAME:
+      SERVICE_NAME:
         description: "service name, e.g. migration-service, product-service, order-service"
         type: string
       TAG:
-        description: "tag for the image"
+        description: "tag for the image, e.g. 1.0"
         type: string
-
 env:
-  SERVICE_FOLDER: services/${{github.event.inputs.NAME}}
-  IMAGE_NAME: ms-mono-typeorm.local/demo/ms-mono-typeorm/${{github.event.inputs.NAME}}
-  IMAGE_TAG: ${{github.event.inputs.TAG}}
+  SERVICE_FOLDER: services/${{inputs.SERVICE_NAME}}
+  IMAGE_NAME: ms-mono-typeorm.local/demo/${{inputs.SERVICE_NAME}}
 
 jobs:
   build-docker:
@@ -32,6 +30,12 @@ jobs:
             
       - run: |
           ls -la . services
-      - run: |
-          docker build -t ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}} -t ${{env.IMAGE_NAME}}:latest -f ${{env.SERVICE_FOLDER}}/Dockerfile .
-## push to registry if needed
+      # - run: |
+      #     docker build -t ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}} -t ${{env.IMAGE_NAME}}:latest -f ${{env.SERVICE_FOLDER}}/Dockerfile .
+
+      - name: how to run raw command with buildx and add-host
+        run: |
+          docker buildx build --platform linux/amd64 \
+            --add-host ms-mono-typeorm.local:192.168.2.49 \
+            -t ${{env.IMAGE_NAME}}:${{inputs.TAG}} -t ${{env.IMAGE_NAME}}:latest \
+            --push -f ${{env.SERVICE_FOLDER}}/Dockerfile .
