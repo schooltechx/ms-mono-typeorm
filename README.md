@@ -92,12 +92,16 @@ npm i @ms-mono-share/database-entities -w @ms-mono-share/database \
 
 ```
 ติดตั้ง Dependencies ที่แต่ละตัวใช้ (จริงๆแล้วถ้าติดตั้งที่ root โปรเจ็กก็จะมองเห็นทั้งหมด แต่จะแยกเพื่อให้เข้าใจว่าตัวไหนใช้อะไรบ้าง)
+dotenv มีปัญหากับ workspace ทำให้เกิดโฟลเดอร์ node_modules ใน workspace ที่ติดตั้ง 
+ให้ติดตั้งที่ root ของ repo
 ```sh
+npm i -D ts-node -w services/migration-service
+npm i dotenv
 ## database-entities
 npm i typeorm -w @ms-mono-share/database-entities
 npm i -D typescript rimraf -w @ms-mono-share/database-entities
 ## database
-npm i typeorm sqlite3 dotenv -w @ms-mono-share/database
+npm i typeorm sqlite3 -w @ms-mono-share/database
 npm i -D typescript -w @ms-mono-share/database
 ## all services
 npm i typeorm express -w services/migration-service \
@@ -144,7 +148,6 @@ npm run clean-all
 ```
 
 ## Migration
-
 จะทำ migrate จากศูนย์กลางโดยใช้ services/migration-service 
 โค้ดจาก migration:generate เก็บที่ services/migration-service/src/migrations/*.ts
 
@@ -163,6 +166,7 @@ npm run migration:run -w services/migration-service
 
 
 ## Start Services
+.env จะมีการตั้งค่า PORT ปกติไม่ต้องแก้ไขถ้าไม่ชนกับระบบเดิม
 เรียกใช้งาน 
 ```sh
 npm start -w services/migration-service
@@ -221,13 +225,6 @@ docker build -t ms-mono-typeorm.local/demo/product-service:latest -f services/pr
 docker build -t ms-mono-typeorm.local/demo/order-service:latest -f services/order-service/Dockerfile .
 ```
 
-
-## Homework
-- ลองสร้างอีก workspace ชื่อ services/user-service ใช้ port 3001 
-มี Entities [User.ts](packages/database-entities/src/User.ts) เตรียมไว้แล้ว
-อาจจะใช้ Framework ที่ต่างออกไปก็ได้เช่น Elysia.js, TSOA
-- เพิ่มข้อมูล แล้วสร้าง API CRUD ให้สมบูรณ์
-
 ## Sparse checkout
 Git 2.25+ ทำการ clone โค้ดแค่บางส่วนรวมถึงไฟล์ที่อยู่ใน root repo ด้วย เร็วและใช้เนื้อที่น้อยกว่า clone ทั้ง repo
 - cone mode ในคำสั่งเดียวใช้ --sparse
@@ -274,6 +271,11 @@ job build-docker และใช้ input เพื่อรับค่า serv
 act --workflows .github/workflows/build-a-service.yaml -j build-docker --input NAME=migration-service 
 ```
 
+## Homework
+- ลองสร้างอีก workspace ชื่อ services/user-service ใช้ port 3001 
+มี Entities [User.ts](packages/database-entities/src/User.ts) เตรียมไว้แล้ว
+อาจจะใช้ Framework ที่ต่างออกไปก็ได้เช่น Elysia.js, TSOA
+- เพิ่มข้อมูล แล้วสร้าง API CRUD ให้สมบูรณ์
 
 
 ## Misc
