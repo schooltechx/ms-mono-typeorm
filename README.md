@@ -81,9 +81,6 @@ npm init -y --scope @ms-mono-share -w packages/database
 npm init -y -w services/migration-service
 npm init -y -w services/order-service
 npm init -y -w services/product-service
-npm i @ms-mono-share/database-entities -w services/migration-service
-npm i @ms-mono-share/database-entities -w services/product-service
-npm i @ms-mono-share/database-entities -w services/order-service
 ```
 
 ## Install Dependencies
@@ -238,7 +235,7 @@ Git 2.25+ ทำการ clone โค้ดแค่บางส่วนรว
 
 ```sh
 # Sparc checkout. Get only files in root repo
-git clone --filter=blob:none --sparse git@github.com:schooltechx/ms-mono-typeorm.git
+git clone --filter=blob:none --sparse https://github.com/schooltechx/ms-mono-typeorm.git
 cd ms-mono-typeorm
 git sparse-checkout set packages/database-entities packages/database 
 git sparse-checkout list
