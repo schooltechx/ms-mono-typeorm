@@ -1,0 +1,39 @@
+
+@admin_key = edd1c9f034335f136f87ad84b625c8f1
+
+### 
+GET http://localhost:3000/migrate HTTP/1.1
+content-type: application/json
+### 
+GET http://localhost:3002/products HTTP/1.1
+content-type: application/json
+### 
+GET http://localhost:3003/orders HTTP/1.1
+content-type: application/json
+
+### 
+PUT http://127.0.0.1:9180/apisix/admin/routes/anything HTTP/1.1
+content-type: application/json
+X-API-KEY: {{admin_key}}
+
+{
+    "host": "ms-mono-typeorm.local",
+    "uri": "/httpbin",
+    "plugins": {
+        "opentelemetry": {
+            "sampler": {
+                "name": "always_on"
+            }
+        }
+    },
+    "upstream": {
+        "type": "roundrobin",
+        "nodes": {
+            "httpbin.org:80": 1
+        }
+    }
+}
+
+### 
+GET http://ms-mono-typeorm.local/httpbin HTTP/1.1
+content-type: application/json

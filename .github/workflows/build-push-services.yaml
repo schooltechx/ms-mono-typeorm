@@ -9,7 +9,6 @@ on:
       TAG: {required: true, type: string}
       REPO: {required: false, type: string, default: "schooltechx/ms-mono-typeorm"}
         
-
 jobs:
   build-push-services:
     runs-on: ubuntu-latest

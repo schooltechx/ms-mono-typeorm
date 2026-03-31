@@ -1,11 +1,125 @@
 services:
-  # apisix:
+  apisix:
+    image: apache/apisix:${APISIX_IMAGE_TAG:-3.15.0-debian}
+    restart: always
+    volumes:
+      - ./apisix_conf/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+    depends_on:
+      - etcd
+    ##network_mode: host
+    ports:
+      - "9180:9180/tcp"
+      - "9080:9080/tcp"
+      - "9091:9091/tcp"
+      - "9443:9443/tcp"
+      - "9092:9092/tcp"
+  etcd:
+    image: bitnamilegacy/etcd:3.5.11
+    restart: always
+    volumes:
+      - ./data_etcd:/bitnami/etcd
+    environment:
+      ETCD_ENABLE_V2: "true"
+      ALLOW_NONE_AUTHENTICATION: "yes"
+      ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
+      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+    ports:
+      - "2379:2379/tcp"
+  
+  opentelemetry-collector-collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./ot_conf/config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC port
+      - "4318:4318" # OTLP HTTP port
+      - "14250:14250" # Jaeger gRPC port
+      - "14268:14268" # Jaeger HTTP port
+  jaeger:
+    image: jaegertracing/all-in-one:1.52.0
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686" # Jaeger UI port
+      - "14268:14268"
+      - "14250:14250"
+
+  dashboard:
+    image: grafana/grafana:11.5.2
+    user: ${G_UID_GID}
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - '7708:3000'
+    environment:
+      - TZ=Asia/Bangkok
+      - GF_SECURITY_ADMIN_USER=${G_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${G_ADMIN_PASSWORD}
+      # - GF_SERVER_ROOT_URL=https://saas.${G_DOMAIN}/dashboard/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      # - GF_LOG_LEVEL=debug
+      - GF_PLUGINS_PREINSTALL=crate-datasource,grafana-clock-panel,grafana-worldmap-panel,natel-plotly-panel
+    logging:
+      driver: loki
+      options:
+        loki-url: "https://${G_ADMIN_USER}:${G_ADMIN_PASSWORD}@saas-loki.${G_DOMAIN}/loki/api/v1/push"
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
+        mode: "non-blocking"
+    volumes:
+      - ./data_dashboard:/var/lib/grafana
+      - ./data_grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+
+  loki:
+    image: docker.io/grafana/loki:3.4.2
+    command: "-config.file=/etc/loki/config.yaml"
+    restart: unless-stopped
+    user: ${G_UID_GID}
+    ports:
+      - "7704:3100"
+    volumes:
+      - ./data_logs/loki-config.yaml:/etc/loki/config.yaml:ro
+      - ./data_logs/logs:/tmp:rw
+    environment:
+      - TZ=Asia/Bangkok
+    networks:
+      - saas
+
+  promtail:
+    image: docker.io/grafana/promtail:3.4.2
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    restart: unless-stopped
+    volumes:
+      - ./data_logs/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - /var/log:/var/log:ro
+    environment:
+      - TZ=Asia/Bangkok
+
 
   migration-service:
     container_name: migration-service
     image: ms-mono-typeorm.local/ms-mono-typeorm/migration-service:latest
     volumes:
       - ./data_base:/data 
+    logging:
+      driver: loki
+      options:
+        loki-url: "https://${G_ADMIN_USER}:${G_ADMIN_PASSWORD}@saas-loki.${G_DOMAIN}/loki/api/v1/push"
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
+        mode: "non-blocking"
+    environment:
+      - TZ=Asia/Bangkok
+
+
   product-service:
     container_name: product-service
     image: ms-mono-typeorm.local/ms-mono-typeorm/product-service:latest
